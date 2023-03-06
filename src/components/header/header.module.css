@@ -1,0 +1,68 @@
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+
+.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+}
+
+.logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--md-sys-color-outline);
+    padding-bottom: .5rem;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.stack {
+    display: flex;
+    flex-direction: column;
+}
+
+.headerText {
+    padding: 0;
+    margin: 0;
+
+}
+
+.headerButton {
+    text-align: center;
+    height: 2.5rem;
+    width: 2.5rem;
+    padding: 0px;
+
+    border-width: 0px;
+    background-color: transparent;
+}
+
+.headerButton:active>img {
+    content:url('../../assets/thick-question-mark.svg');
+    filter: brightness(0) saturate(100%) invert(31%) sepia(99%) saturate(351%) hue-rotate(57deg) brightness(88%) contrast(88%);
+}
+
+.headerButton:hover,
+.headerButton:focus {
+    background-color: var(--md-sys-color-surface-variant);
+    border-radius: 50%;
+    color: var(--md-sys-color-primary);
+}
+
+img {
+    content:url('../../assets/question-mark.svg');
+
+    width: 24px;
+    height: 24px;
+    color: var(--md-sys-color-on-surface);
+}

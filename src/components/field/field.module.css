@@ -1,0 +1,127 @@
+.field{
+    display: flex; 
+    gap: 2rem; 
+
+    aspect-ratio: 16/9;
+
+    box-sizing: content-box;
+
+    position: relative;
+}
+
+.bar {
+    width: 70px;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+
+
+    justify-content: space-between;
+    align-items: center;
+
+    background-color: var(--md-ref-palette-primary98);
+
+}
+
+
+input[type=checkbox] {
+    display: none;
+}
+
+.pencilLabel {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    background-image: url('../../assets/pencil.svg');
+
+    border: 2px solid var(--md-sys-color-outline);
+}
+
+input[type=checkbox]:checked + label {
+    background-color: var(--md-ref-palette-primary80);
+}
+
+.pencilLabel:hover {
+    
+    background-color: var(--md-ref-palette-primary90);
+}
+
+.eraserLabel {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    background-image: url('../../assets/erase.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+
+    border: 2px solid var(--md-sys-color-outline);
+}
+
+.eraserLabel:hover {
+    background-color: var(--md-ref-palette-primary90);
+}
+
+input[type=color] {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+}
+
+
+.group {
+    display: flex;
+    gap: .5rem;
+    flex-direction: column;
+    align-items: center;
+}
+
+.divider{
+    height: 1px; 
+    width: 100%;
+    background-color: var(--md-sys-color-outline);
+}
+
+.reset {
+    background-image: url('../../assets/refresh.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+
+}
+
+.hide {
+    background-image: url('../../assets/eye.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+
+}
+
+button {
+    width: 50px;
+    height: 50px;
+
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: var(--md-ref-palette-secondary90);
+}
+
+button:active{
+    background-color: var(--md-ref-palette-secondary80);
+}
+
+.playField{
+    flex: 1 1 auto;
+    background-color: var(--md-ref-palette-primary99);
+    background-image: url('../../assets/campo.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+
+    position: relative;
+}
