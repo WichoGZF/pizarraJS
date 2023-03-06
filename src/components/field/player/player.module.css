@@ -1,9 +1,9 @@
 .red {
-    background-color: red;
+    background-color: var(--md-custom-color-Blue-team);
 }
 
 .blue {
-    background-color: blue;
+    background-color: var(--md-custom-color-Custom-Color-2);
 }
 
 .player {
