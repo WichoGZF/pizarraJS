@@ -171,8 +171,9 @@
   --md-sys-color-outline-variant-dark: #424940;
   --md-sys-color-scrim-dark: #000000;
   /* Custom Colors */
-  --md-custom-color-Red=: #FF73A6;
-  --md-custom-color-Blue: #97A9FF;
+  --md-custom-color-Blue-team: #FF73A6;
+  --md-custom-color-blue: #97A9FF;
+  --md-custom-color-red: #FF73A6;
   /* display - large */
   --md-sys-typescale-display-large-font-family-name: Roboto;
   --md-sys-typescale-display-large-font-family-style: Regular;

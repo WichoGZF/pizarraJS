@@ -28,11 +28,12 @@ class RedTeam implements Team {
   constructor(element: HTMLElement) {
     this.show = true;
 
-    const widthUnit = Math.trunc(element.clientWidth/14);
-    const heightUnit = Math.trunc(element.clientHeight/5);
-    debugger
+    const widthUnit = Math.trunc(element.clientWidth/15);
+    const heightUnit = Math.trunc(element.clientHeight/6);
+    const offsetTop = -20;  //20 due to it being half of a player height
+    const offsetLeft = -20;  //20 due to it being half of a playtter width
 
-    this.setInitialPos(widthUnit, heightUnit);
+    this.setInitialPos(widthUnit, heightUnit, offsetLeft, offsetTop);
     
     for (let i = 0; i < 11; i++) {
       this.players[i] = new Player(this.initialPos[i], i + 1, false)
@@ -40,19 +41,19 @@ class RedTeam implements Team {
 
   }
 
-  setInitialPos(widthUnit: number, heightUnit: number) {
+  setInitialPos(widthUnit: number, heightUnit: number, offsetLeft: number, offsetTop: number) {
     this.initialPos = [
-      { x: 1 * widthUnit, y: 3 * heightUnit },
-      { x: 2 * widthUnit, y: 2 * heightUnit },
-      { x: 2 * widthUnit, y: 4 * heightUnit },
-      { x: 3 * widthUnit, y: 1 * heightUnit },
-      { x: 3 * widthUnit, y: 5 * heightUnit },
-      { x: 4 * widthUnit, y: 3 * heightUnit },
-      { x: 5 * widthUnit, y: 2 * heightUnit },
-      { x: 5 * widthUnit, y: 4 * heightUnit },
-      { x: 6 * widthUnit, y: 1 * heightUnit },
-      { x: 6 * widthUnit, y: 5 * heightUnit },
-      { x: 7 * widthUnit, y: 3 * heightUnit },
+      { x: 1 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop},
+      { x: 2 * widthUnit + offsetLeft, y: 2 * heightUnit + offsetTop },
+      { x: 2 * widthUnit + offsetLeft, y: 4 * heightUnit + offsetTop },
+      { x: 3 * widthUnit + offsetLeft, y: 1 * heightUnit + offsetTop },
+      { x: 3 * widthUnit + offsetLeft, y: 5 * heightUnit + offsetTop },
+      { x: 4 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
+      { x: 5 * widthUnit + offsetLeft, y: 2 * heightUnit + offsetTop },
+      { x: 5 * widthUnit + offsetLeft, y: 4 * heightUnit + offsetTop },
+      { x: 6 * widthUnit + offsetLeft, y: 1 * heightUnit + offsetTop },
+      { x: 6 * widthUnit + offsetLeft, y: 5 * heightUnit + offsetTop },
+      { x: 7 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
     ]
   }
   setShow() {
@@ -72,10 +73,12 @@ class BlueTeam implements Team {
   constructor(element: HTMLElement) {
     this.show = true;
 
-    const widthUnit = Math.round(element.clientWidth/14);
-    const heightUnit = Math.round(element.clientHeight/5);
+    const widthUnit = Math.round(element.clientWidth/15);
+    const heightUnit = Math.round(element.clientHeight/6);
+    const offsetTop = -20;  //20 due to it being half of a player height
+    const offsetLeft = -20;  //20 due to it being half of a playtter width
 
-    this.setInitialPos(widthUnit, heightUnit);
+    this.setInitialPos(widthUnit, heightUnit, offsetLeft, offsetTop);
 
     for (let i = 0; i < 11; i++) {
       this.players[i] = new Player(this.initialPos[i], i + 1, false)
@@ -83,19 +86,19 @@ class BlueTeam implements Team {
 
   }
 
-  setInitialPos(widthUnit: number, heightUnit: number) {
+  setInitialPos(widthUnit: number, heightUnit: number,  offsetLeft: number, offsetTop: number) {
     this.initialPos = [
-      { x: 14 * widthUnit, y: 3 * heightUnit },
-      { x: 13 * widthUnit, y: 2 * heightUnit },
-      { x: 13 * widthUnit, y: 4 * heightUnit },
-      { x: 12 * widthUnit, y: 1 * heightUnit },
-      { x: 12 * widthUnit, y: 5 * heightUnit },
-      { x: 11 * widthUnit, y: 3 * heightUnit },
-      { x: 10 * widthUnit, y: 2 * heightUnit },
-      { x: 10 * widthUnit, y: 4 * heightUnit },
-      { x: 9 * widthUnit, y: 1 * heightUnit },
-      { x: 9 * widthUnit, y: 5 * heightUnit },
-      { x: 8 * widthUnit, y: 3 * heightUnit },
+      { x: 14 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
+      { x: 13 * widthUnit + offsetLeft, y: 2 * heightUnit + offsetTop },
+      { x: 13 * widthUnit + offsetLeft, y: 4 * heightUnit + offsetTop },
+      { x: 12 * widthUnit + offsetLeft, y: 1 * heightUnit + offsetTop },
+      { x: 12 * widthUnit + offsetLeft, y: 5 * heightUnit + offsetTop },
+      { x: 11 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
+      { x: 10 * widthUnit + offsetLeft, y: 2 * heightUnit + offsetTop },
+      { x: 10 * widthUnit + offsetLeft, y: 4 * heightUnit + offsetTop },
+      { x: 9 * widthUnit + offsetLeft, y: 1 * heightUnit + offsetTop },
+      { x: 9 * widthUnit + offsetLeft, y: 5 * heightUnit + offsetTop },
+      { x: 8 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
     ]
   }
 
