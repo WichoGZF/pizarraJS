@@ -20,6 +20,7 @@ export const field: string = `
             </div>
         </div>
         <div id="field" class=${styles.playField}>
+            <div id="select" class=${styles.selection}></div>
         </div>
     </div>
 `

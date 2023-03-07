@@ -1,6 +1,6 @@
-.field{
-    display: flex; 
-    gap: 2rem; 
+.field {
+    display: flex;
+    gap: 2rem;
 
     aspect-ratio: 16/9;
 
@@ -38,12 +38,12 @@ input[type=checkbox] {
     border: 2px solid var(--md-sys-color-outline);
 }
 
-input[type=checkbox]:checked + label {
+input[type=checkbox]:checked+label {
     background-color: var(--md-ref-palette-primary80);
 }
 
 .pencilLabel:hover {
-    
+
     background-color: var(--md-ref-palette-primary90);
 }
 
@@ -76,8 +76,8 @@ input[type=color] {
     align-items: center;
 }
 
-.divider{
-    height: 1px; 
+.divider {
+    height: 1px;
     width: 100%;
     background-color: var(--md-sys-color-outline);
 }
@@ -111,11 +111,11 @@ button:hover {
     background-color: var(--md-ref-palette-secondary90);
 }
 
-button:active{
+button:active {
     background-color: var(--md-ref-palette-secondary80);
 }
 
-.playField{
+.playField {
     flex: 1 1 auto;
     background-color: var(--md-ref-palette-primary99);
     background-image: url('../../assets/campo.png');
@@ -124,4 +124,10 @@ button:active{
     background-position: center;
 
     position: relative;
+}
+
+.selection {
+    border: 1px dashed var(--md-sys-color-outline);
+    position: absolute;
+
 }
