@@ -217,8 +217,9 @@ fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
 fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
   selection.nullPos()
   fieldElement.removeEventListener('mousemove', handleMouseMove)
-  selectElement.setAttribute('style', 'display: hidden ')
+  selectElement.setAttribute('style', 'display: hidden ');
 })
 
-fieldElement.addEventListener('mouseleave', handleMouseOut);
+
+
 
