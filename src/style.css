@@ -37,3 +37,12 @@ body {
   justify-content: center;
   gap: 1rem;
 }
+
+.selected{
+  border: 2px solid var(--md-sys-color-outline);
+}
+
+.unselected{
+  border: none;
+}
+
