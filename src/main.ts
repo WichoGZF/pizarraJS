@@ -139,6 +139,46 @@ class BlueTeam implements Team {
 }
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
+//For keeping the ref of the dragged el
+let dragged: HTMLElement = null;
+
+
+
+fieldElement.addEventListener("drop", (event: DragEvent) => {
+  event.preventDefault();
+  if (event.target instanceof HTMLElement) {
+    
+    // move dragged element to the selected drop target
+    if (event.target.id === "field") {
+      const offset = -20
+      const rect = fieldElement.getBoundingClientRect();
+      const newX = event.pageX - rect.left + offset
+      const newY = event.pageY - rect.top + offset
+
+      if(dragged.dataset.team === 'red'){
+        redTeam.players[parseInt(dragged.dataset.number!) - 1].setPos({x: newX, y: newY})
+      }
+      else{ //dragged is blue team
+        redTeam.players[parseInt(dragged.dataset.number!) - 1].setPos({x: newX, y: newY})
+      }
+
+      dragged.setAttribute('style',
+        `left: ${newX}px; top: ${newY}px`)
+    }
+  }
+  // prevent default action (open as link for some elements)
+});
+
+
+fieldElement.addEventListener("dragenter", (event: DragEvent) => {
+  event.preventDefault();
+});
+
+fieldElement.addEventListener("dragover", (event: DragEvent) => {
+  event.preventDefault();
+});
+
+
 
 const redTeam = new RedTeam(fieldElement)
 const blueTeam = new BlueTeam(fieldElement)
@@ -146,12 +186,20 @@ const blueTeam = new BlueTeam(fieldElement)
 ///inserting initial players 
 const fragment = document.createDocumentFragment();
 
+//Dragging handler that changes the value of dragged on dragstart
+const dragStartHandler = (event: DragEvent) => {
+  if (event.target instanceof HTMLElement) {
+    dragged = event.target;
+  }
+}
+
 redTeam.players.forEach((player: Player, index: number) => {
-  fragment.appendChild(createPlayerEl(player.number, 'red', player.position))
+  fragment.appendChild(createPlayerEl(player.number, 'red', player.position, dragStartHandler))
+
 })
 
 blueTeam.players.forEach((player: Player, index: number) => {
-  fragment.appendChild(createPlayerEl(player.number, 'blue', player.position))
+  fragment.appendChild(createPlayerEl(player.number, 'blue', player.position, dragStartHandler))
 })
 
 fieldElement.append(fragment)
@@ -190,6 +238,7 @@ class Selection {
 const selection: Selection = new Selection();
 const selectElement: HTMLElement = document.querySelector<HTMLElement>('#select')!;
 //
+let mouseInField: boolean = false;
 
 //Event handlers for selection and event listeners.
 const handleMouseMove = (e: MouseEvent) => {
@@ -198,7 +247,6 @@ const handleMouseMove = (e: MouseEvent) => {
   selection.updateEndingPos(newPos);
   const endingPos = selection.endingPos!;
   const startingPos = selection.initialPos!;
-  console.log(selection, endingPos, startingPos)
   //quadrant 1)
   if ((endingPos.x >= startingPos.x) && (endingPos.y <= startingPos.y)) {
     selectElement.setAttribute('style',
@@ -263,24 +311,31 @@ const handleMouseMove = (e: MouseEvent) => {
 }
 
 fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
-  //Unselect players
-  redTeam.unselectAll();
-  blueTeam.unselectAll();
-  for (let i = 0; i < 11; i++) {
-    const redPlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#red${i + 1}`)!;
-    const bluePlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#blue${i + 1}`)!;
-    redPlayerEl.classList.remove("selected");
-    bluePlayerEl.classList.remove("selected");
+  //Only do anything if inside the actual fieldEl 
+  if (mouseInField) {
+    //Unselect players
+    redTeam.unselectAll();
+    blueTeam.unselectAll();
+    for (let i = 0; i < 11; i++) {
+      const redPlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#red${i + 1}`)!;
+      const bluePlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#blue${i + 1}`)!;
+      redPlayerEl.classList.remove("selected");
+      bluePlayerEl.classList.remove("selected");
+    }
+
+    //Set positions
+    e.stopPropagation();
+    const left = e.offsetX;
+    const top = e.offsetY;
+    selection.initializePos({ x: left, y: top })
+    selectElement.setAttribute('style', `left: ${left}px; top: ${top}px`)
+
+    fieldElement.addEventListener('mousemove', handleMouseMove)
+  }
+  else {
+    console.log('Mouse not in field');
   }
 
-  //Set positions
-  e.stopPropagation();
-  const left = e.offsetX;
-  const top = e.offsetY;
-  selection.initializePos({ x: left, y: top })
-  selectElement.setAttribute('style', `left: ${left}px; top: ${top}px`)
-
-  fieldElement.addEventListener('mousemove', handleMouseMove)
 })
 
 fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
@@ -290,5 +345,10 @@ fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
 })
 
 
+fieldElement.addEventListener('mouseover', (e: MouseEvent) => {
+  mouseInField = true;
+})
 
-
+fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
+  mouseInField = false;
+})
