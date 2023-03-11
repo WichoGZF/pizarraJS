@@ -79,6 +79,24 @@ class RedTeam implements Team {
   unselect(index: number) {
     this.players[index].unselect();
   }
+  //Returns number array of player indexes that are selected
+  getSelected(): number[] {
+    let selected: number[] = [];
+    this.players.forEach((player, index) => {
+      if (player.getSelected()) {
+        selected.push(index);
+      }
+    })
+    return selected;
+  }
+  getPlayerIsSelected(index: number): boolean {
+    if (this.players[index].getSelected()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
 
 class BlueTeam implements Team {
@@ -136,6 +154,23 @@ class BlueTeam implements Team {
   unselect(index: number) {
     this.players[index].unselect();
   }
+  getSelected(): number[] {
+    let selected: number[] = [];
+    this.players.forEach((player, index) => {
+      if (player.getSelected()) {
+        selected.push(index);
+      }
+    })
+    return selected;
+  }
+  getPlayerIsSelected(index: number): boolean {
+    if (this.players[index].getSelected()) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
 }
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
@@ -147,24 +182,66 @@ let dragged: HTMLElement = null;
 fieldElement.addEventListener("drop", (event: DragEvent) => {
   event.preventDefault();
   if (event.target instanceof HTMLElement) {
-    
+
     // move dragged element to the selected drop target
     if (event.target.id === "field") {
-      const offset = -20
       const rect = fieldElement.getBoundingClientRect();
-      const newX = event.pageX - rect.left + offset
-      const newY = event.pageY - rect.top + offset
 
-      if(dragged.dataset.team === 'red'){
-        redTeam.players[parseInt(dragged.dataset.number!) - 1].setPos({x: newX, y: newY})
-      }
-      else{ //dragged is blue team
-        redTeam.players[parseInt(dragged.dataset.number!) - 1].setPos({x: newX, y: newY})
-      }
+      const multipleSelected = event.dataTransfer?.getData('multiple_selected') === 'true'
+      if(multipleSelected){
+        console.log(event.dataTransfer.getData('start_pos'))
+        const redTeamSelected = JSON.parse(event.dataTransfer.getData('red_team_selected'));
+        const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected')); 
+        const startPos: Position = JSON.parse(event.dataTransfer?.getData('start_pos'))
 
-      dragged.setAttribute('style',
-        `left: ${newX}px; top: ${newY}px`)
-    }
+        const increasedPos: Position = {x: event.pageX - startPos.x, y: event.pageY - startPos.y}; //Pos to add to moved elements
+        const updatedElArray: Element[] = []; 
+        //Both these are arrays that hold the moved fields
+        redTeamSelected.forEach((playerIndex) => {
+          const droppedEl = document.getElementById(`red${playerIndex+1}`)
+          const currentModelPos =  redTeam.players[playerIndex].position
+
+          redTeam.players[playerIndex].position = {x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y}
+
+          const removedEl = fieldElement.removeChild(droppedEl)
+          removedEl.setAttribute('style',
+          `left: ${redTeam.players[playerIndex].position.x}px; top: ${redTeam.players[playerIndex].position.y}px`);
+          updatedElArray.push(removedEl)
+        
+        })  
+        blueTeamSelected.forEach(( playerIndex) => {
+           
+          const droppedEl = document.getElementById(`blue${playerIndex+1}`)
+          const currentModelPos =  blueTeam.players[playerIndex].position
+
+          blueTeam.players[playerIndex].position = {x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y}
+
+          const removedEl = fieldElement.removeChild(droppedEl)
+          removedEl.setAttribute('style',
+          `left: ${blueTeam.players[playerIndex].position.x}px; top: ${blueTeam.players[playerIndex].position.y}px`);
+          updatedElArray.push(removedEl)
+          
+          })
+          console.log(updatedElArray)
+          fieldElement.append(...updatedElArray);
+
+      }
+      else{ // single drag 
+        const newX = event.pageX - rect.left
+        const newY = event.pageY - rect.top
+  
+        if (dragged.dataset.team === 'red') {
+          redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
+        }
+        else { //dragged is blue team
+          redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
+        }
+  
+        dragged.setAttribute('style',
+          `left: ${newX}px; top: ${newY}px`)
+      }
+      }
+      
   }
   // prevent default action (open as link for some elements)
 });
@@ -191,10 +268,37 @@ const dragStartHandler = (event: DragEvent) => {
   if (event.target instanceof HTMLElement) {
     dragged = event.target;
   }
+
+  if (dragged.classList.contains("selected")) {
+    //If selected need to get array of selected els and pass that as dataTransfer
+    const redTeamSelected = JSON.stringify(redTeam.getSelected())
+    const blueTeamSelected = JSON.stringify(blueTeam.getSelected());
+    const rect = dragged.getBoundingClientRect(); 
+
+    console.log(redTeamSelected, blueTeamSelected)
+
+    event.dataTransfer?.setData('multiple_selected', "true");
+
+    event.dataTransfer?.setData('red_team_selected', redTeamSelected)
+
+    event.dataTransfer?.setData('blue_team_selected', blueTeamSelected)
+
+    event.dataTransfer?.setData('start_pos', `{"x": ${rect.x}, "y": ${rect.y}}`)
+
+    console.log(event.dataTransfer?.getData('start_pos'))
+  }
+  else {
+    //Do nothing 
+    event.dataTransfer?.setData('multiple_selected', "false");
+
+    return;
+  }
 }
+
 
 redTeam.players.forEach((player: Player, index: number) => {
   fragment.appendChild(createPlayerEl(player.number, 'red', player.position, dragStartHandler))
+
 
 })
 
@@ -318,9 +422,9 @@ fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
     blueTeam.unselectAll();
     for (let i = 0; i < 11; i++) {
       const redPlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#red${i + 1}`)!;
+      redPlayerEl===null? null: redPlayerEl.classList.remove("selected");
       const bluePlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#blue${i + 1}`)!;
-      redPlayerEl.classList.remove("selected");
-      bluePlayerEl.classList.remove("selected");
+      bluePlayerEl === null? null: bluePlayerEl.classList.remove("selected");
     }
 
     //Set positions
@@ -332,10 +436,7 @@ fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
 
     fieldElement.addEventListener('mousemove', handleMouseMove)
   }
-  else {
-    console.log('Mouse not in field');
-  }
-
+ 
 })
 
 fieldElement.addEventListener('mouseup', (e: MouseEvent) => {

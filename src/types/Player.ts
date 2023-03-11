@@ -22,4 +22,15 @@ export default class Player{
     unselect(){
         this.selected = false;
     }
+    
+    getPos(){
+        return this.position;
+    }
+    getNumber(){
+        return this.number;
+    }
+    getSelected(){
+        return this.selected;
+    }
+    
 }

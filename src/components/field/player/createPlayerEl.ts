@@ -12,7 +12,7 @@ export default function createPlayerEl(number: number, team: 'red' | 'blue', pos
 
     playerEl.setAttribute('style', `left: ${position.x}px; top: ${position.y}px`)
     playerEl.setAttribute('draggable', 'true')
-    playerEl.dataset.number = `${number}`
+    playerEl.dataset.index = `${number - 1}`
 
     if (team === 'red') {
         playerEl.classList.add(styles.red);
@@ -26,6 +26,9 @@ export default function createPlayerEl(number: number, team: 'red' | 'blue', pos
         playerEl.id = `blue${number}`
     }
 
+    /*Drag start needs two use cases, when there's a selection and when there's no selected el. (Selected el existing moves all other selected)
+    No selected el just moves the single element and removes all selected els
+    */
     playerEl.addEventListener('dragstart', dragHandler);
     playerEl.addEventListener('mouseover', (e: MouseEvent) => {e.stopPropagation()})
     playerEl.addEventListener('mouseout', (e: MouseEvent) => {e.stopPropagation()})
