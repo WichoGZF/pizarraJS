@@ -12,11 +12,11 @@ export const field: string = `
 
             </div>
             <div class=${styles.group}>
-                <button class=${styles.reset} ${styles.red}></button>
-                <button class=${styles.hide} ${styles.red}></button>
+                <button id="reset-red" class=${styles.reset} ${styles.red}></button>
+                <button id="hide-red" class=${styles.hide} ${styles.red}></button>
                 <div class=${styles.divider}></div>
-                <button class=${styles.reset} ${styles.blue}></button>
-                <button class=${styles.hide} ${styles.blue}></button>
+                <button id="reset-blue" class=${styles.reset} ${styles.blue}></button>
+                <button id="hide-blue" class=${styles.hide} ${styles.blue}></button>
             </div>
         </div>
         <div id="field" class=${styles.playField}>
