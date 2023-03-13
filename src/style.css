@@ -46,3 +46,8 @@ body {
   border: none;
 }
 
+#previewCanvas{
+  position: absolute; 
+  left: -2000px; 
+  
+}

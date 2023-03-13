@@ -177,6 +177,7 @@ class BlueTeam implements Team {
 
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
+const fieldElRect = fieldElement.getBoundingClientRect();
 //For keeping the ref of the dragged el
 let dragged: HTMLElement = null;
 
@@ -188,14 +189,12 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
     // move dragged element to the selected drop target
     if (event.target.id === "field") {
       const rect = fieldElement.getBoundingClientRect();
-
       const multipleSelected = event.dataTransfer?.getData('multiple_selected') === 'true'
+
       if (multipleSelected) {
-        console.log(event.dataTransfer.getData('start_pos'))
         const redTeamSelected = JSON.parse(event.dataTransfer.getData('red_team_selected'));
         const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected'));
         const startPos: Position = JSON.parse(event.dataTransfer?.getData('start_pos'))
-
         const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y }; //Pos to add to moved elements
         const updatedElArray: Element[] = [];
         //Both these are arrays that hold the moved fields
@@ -229,8 +228,9 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
 
       }
       else { // single drag 
-        const newX = event.pageX - rect.left
-        const newY = event.pageY - rect.top
+        const clickOffset: Position = JSON.parse(event.dataTransfer?.getData('click_offset'))
+        const newX = (event.pageX - clickOffset.x) - fieldElRect.x
+        const newY = (event.pageY - clickOffset.y) - fieldElRect.y
 
         if (dragged.dataset.team === 'red') {
           redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
@@ -265,7 +265,7 @@ const blueTeam = new BlueTeam(fieldElement)
 ///inserting initial players 
 const fragment = document.createDocumentFragment();
 
-let previewEl: HTMLElement = document.createElement('div'); 
+let previewEl: HTMLCanvasElement; 
 
 
 //Dragging handler that changes the value of dragged on dragstart
@@ -273,15 +273,15 @@ const dragStartHandler = (event: DragEvent) => {
   if (event.target instanceof HTMLElement) {
     dragged = event.target;
   }
+  const rect = dragged.getBoundingClientRect();
 
   if (dragged.classList.contains("selected")) {
     
-    event.dataTransfer?.setDragImage(previewEl, 0, 0)
+    event.dataTransfer?.setDragImage(previewEl, event.clientX - fieldElRect.left, event.clientY - fieldElRect.top)
 
     //If selected need to get array of selected els and pass that as dataTransfer
     const redTeamSelected = JSON.stringify(redTeam.getSelected())
     const blueTeamSelected = JSON.stringify(blueTeam.getSelected());
-    const rect = dragged.getBoundingClientRect();
 
     event.dataTransfer?.setData('multiple_selected', "true");
 
@@ -289,15 +289,20 @@ const dragStartHandler = (event: DragEvent) => {
 
     event.dataTransfer?.setData('blue_team_selected', blueTeamSelected)
 
-    event.dataTransfer?.setData('start_pos', `{"x": ${rect.x}, "y": ${rect.y}}`)
+    //start pos is already passed with offset (position of click relative to player el) so there's no need to do further calculations in drop Handler
+    const xOffset = event.pageX - rect.x; 
+    const yOffset = event.pageY - rect.y;
+    console.log(xOffset, yOffset)
+    event.dataTransfer?.setData('start_pos', `{"x": ${rect.x + xOffset}, "y": ${rect.y + yOffset}}`)
 
     console.log(event.dataTransfer?.getData('start_pos'))
   }
   else {
-    //Do nothing 
     event.dataTransfer?.setData('multiple_selected', "false");
-
-    return;
+    const xOffset = event.pageX - rect.x; 
+    const yOffset = event.pageY - rect.y;
+    console.log(xOffset, yOffset)
+    event.dataTransfer?.setData('click_offset', `{"x": ${xOffset}, "y": ${yOffset}}`)
   }
 }
 
@@ -449,8 +454,22 @@ fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
   selection.nullPos()
   fieldElement.removeEventListener('mousemove', handleMouseMove)
   selectElement.setAttribute('style', 'display: hidden ');
+
   //Set canvas preview; 
-  
+  html2canvas(fieldElement, {
+    onclone: (clonedDoc) => {
+      const clonedField = clonedDoc.getElementById('field')
+      clonedField!.style.backgroundImage = 'none'
+
+    }, 
+
+  }).then( (canvas) => { 
+    console.log(canvas)
+    previewEl = canvas
+    previewEl.id = 'previewCanvas'
+    document.body.append(previewEl)
+  })
+
 })
 
 
