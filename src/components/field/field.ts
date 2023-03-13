@@ -12,7 +12,7 @@ export const field: string = `
 
             </div>
             <div class=${styles.group}>
-                <button id="reset-red" class=${styles.reset} ${styles.red}></button>
+                <button id="reset-red" class=${styles.reset} ${styles.red} onclick={handle}></button>
                 <button id="hide-red" class=${styles.hide} ${styles.red}></button>
                 <div class=${styles.divider}></div>
                 <button id="reset-blue" class=${styles.reset} ${styles.blue}></button>

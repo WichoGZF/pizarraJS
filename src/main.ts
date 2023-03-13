@@ -62,6 +62,13 @@ class RedTeam implements Team {
       { x: 7 * widthUnit + offsetLeft, y: 3 * heightUnit + offsetTop },
     ]
   }
+
+  resetPos() {
+    this.players.forEach((player, index) => {
+      player.setPos(this.initialPos[index])
+    })
+  }
+
   setShow() {
     this.show = true;
   }
@@ -137,6 +144,12 @@ class BlueTeam implements Team {
     ]
   }
 
+  resetPos() {
+    this.players.forEach((player, index) => {
+      player.setPos(this.initialPos[index])
+    })
+  }
+
   setShow() {
     this.show = true;
   }
@@ -178,6 +191,12 @@ class BlueTeam implements Team {
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
+
+document.querySelector<HTMLElement>('#reset-red')!.onclick = handleResetRedTeam;
+document.querySelector<HTMLElement>('#hide-red')!.onclick = handleHideRedTeam;
+document.querySelector<HTMLElement>('#reset-blue')!.onclick = handleResetBlueTeam;
+document.querySelector<HTMLElement>('#hide-blue')!.onclick = handleHideBlueTeam;
+
 //For keeping the ref of the dragged el
 let dragged: HTMLElement = null;
 
@@ -242,6 +261,7 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
         dragged.setAttribute('style',
           `left: ${newX}px; top: ${newY}px`)
       }
+      updateDragPreview();
     }
 
   }
@@ -265,7 +285,7 @@ const blueTeam = new BlueTeam(fieldElement)
 ///inserting initial players 
 const fragment = document.createDocumentFragment();
 
-let previewEl: HTMLCanvasElement; 
+let previewEl: HTMLCanvasElement;
 
 
 //Dragging handler that changes the value of dragged on dragstart
@@ -276,7 +296,7 @@ const dragStartHandler = (event: DragEvent) => {
   const rect = dragged.getBoundingClientRect();
 
   if (dragged.classList.contains("selected")) {
-    
+
     event.dataTransfer?.setDragImage(previewEl, event.clientX - fieldElRect.left, event.clientY - fieldElRect.top)
 
     //If selected need to get array of selected els and pass that as dataTransfer
@@ -290,7 +310,7 @@ const dragStartHandler = (event: DragEvent) => {
     event.dataTransfer?.setData('blue_team_selected', blueTeamSelected)
 
     //start pos is already passed with offset (position of click relative to player el) so there's no need to do further calculations in drop Handler
-    const xOffset = event.pageX - rect.x; 
+    const xOffset = event.pageX - rect.x;
     const yOffset = event.pageY - rect.y;
     console.log(xOffset, yOffset)
     event.dataTransfer?.setData('start_pos', `{"x": ${rect.x + xOffset}, "y": ${rect.y + yOffset}}`)
@@ -299,7 +319,7 @@ const dragStartHandler = (event: DragEvent) => {
   }
   else {
     event.dataTransfer?.setData('multiple_selected', "false");
-    const xOffset = event.pageX - rect.x; 
+    const xOffset = event.pageX - rect.x;
     const yOffset = event.pageY - rect.y;
     console.log(xOffset, yOffset)
     event.dataTransfer?.setData('click_offset', `{"x": ${xOffset}, "y": ${yOffset}}`)
@@ -456,30 +476,7 @@ fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
   selectElement.setAttribute('style', 'display: hidden ');
 
   //Set canvas preview; 
-  html2canvas(fieldElement, {
-    onclone: (clonedDoc) => {
-      const clonedField = clonedDoc.getElementById('field')
-      clonedField!.style.backgroundImage = 'none'
- 
-      for (const child of Array.from(clonedField!.children)) {
-        if(child.classList.contains('selected')){
-          continue; 
-        }
-        else{
-          child.style.visibility = 'hidden' 
-        }
-
-      }
-
-    }, 
-
-  }).then( (canvas) => { 
-    console.log(canvas)
-    previewEl = canvas
-    previewEl.id = 'previewCanvas'
-    document.body.append(previewEl)
-  })
-
+  updateDragPreview();
 })
 
 
@@ -490,3 +487,93 @@ fieldElement.addEventListener('mouseover', (e: MouseEvent) => {
 fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
   mouseInField = false;
 })
+
+function updateDragPreview() {
+  html2canvas(fieldElement, {
+    onclone: (clonedDoc) => {
+      const clonedField = clonedDoc.getElementById('field')
+      clonedField!.style.backgroundImage = 'none'
+
+      for (const child of Array.from(clonedField!.children)) {
+        if (child.classList.contains('selected')) {
+          continue;
+        }
+        else {
+          child.style.visibility = 'hidden'
+        }
+
+      }
+
+    },
+
+  }).then((canvas) => {
+    console.log(canvas)
+    previewEl = canvas
+    previewEl.id = 'previewCanvas'
+    document.body.append(previewEl)
+  })
+}
+
+function handleResetRedTeam() {
+  redTeam.resetPos();
+  Array.from(fieldElement.children).forEach((el, index) => {
+    if (el.dataset.team === 'red') {
+      const playerIndex = parseInt(el.dataset.index)
+      const initialPos = redTeam.initialPos[playerIndex];
+      el.setAttribute('style', `left: ${initialPos.x}px; top: ${initialPos.y}px`)
+    }
+  })
+}
+
+function handleResetBlueTeam() {
+  blueTeam.resetPos();
+  Array.from(fieldElement.children).forEach((el, index) => {
+    if (el.dataset.team === 'blue') {
+      const playerIndex = parseInt(el.dataset.index)
+      const initialPos = blueTeam.initialPos[playerIndex];
+      el.setAttribute('style', `left: ${initialPos.x}px; top: ${initialPos.y}px`)
+    }
+  })
+}
+
+function handleHideRedTeam() {
+  console.log('Handle hide red team', redTeam.show)
+  if (redTeam.show) {
+    redTeam.hide();
+
+    Array.from(fieldElement.children).forEach((el, index) => {
+      console.log(el.dataset.team)
+      if (el.dataset.team === 'red') {
+        el.style.visibility = 'hidden'
+      }
+    })
+
+  }
+  else {
+    redTeam.setShow();
+    Array.from(fieldElement.children).forEach((el, index) => {
+      if (el.dataset.team === 'red') {
+        el.style.visibility = 'visible'
+      }
+    })
+  }
+}
+
+function handleHideBlueTeam() {
+  if (blueTeam.show) {
+    blueTeam.hide();
+    Array.from(fieldElement.children).forEach((el, index) => {
+      if (el.dataset.team === 'blue') {
+        el.style.visibility = 'hidden'
+      }
+    })
+  }
+  else {
+    blueTeam.setShow()
+    Array.from(fieldElement.children).forEach((el, index) => {
+      if (el.dataset.team === 'blue') {
+        el.style.visibility = 'visible'
+      }
+    })
+  }
+}
