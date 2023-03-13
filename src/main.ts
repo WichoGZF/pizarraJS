@@ -5,6 +5,7 @@ import Position from '@customTypes/Position'
 import Player from '../src/types/Player'
 import createPlayerEl from './components/field/player/createPlayerEl'
 import isSelected from './isSelected'
+import html2canvas from 'html2canvas'
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   ${header}  
@@ -173,6 +174,8 @@ class BlueTeam implements Team {
   }
 }
 
+
+
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 //For keeping the ref of the dragged el
 let dragged: HTMLElement = null;
@@ -182,66 +185,65 @@ let dragged: HTMLElement = null;
 fieldElement.addEventListener("drop", (event: DragEvent) => {
   event.preventDefault();
   if (event.target instanceof HTMLElement) {
-
     // move dragged element to the selected drop target
     if (event.target.id === "field") {
       const rect = fieldElement.getBoundingClientRect();
 
       const multipleSelected = event.dataTransfer?.getData('multiple_selected') === 'true'
-      if(multipleSelected){
+      if (multipleSelected) {
         console.log(event.dataTransfer.getData('start_pos'))
         const redTeamSelected = JSON.parse(event.dataTransfer.getData('red_team_selected'));
-        const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected')); 
+        const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected'));
         const startPos: Position = JSON.parse(event.dataTransfer?.getData('start_pos'))
 
-        const increasedPos: Position = {x: event.pageX - startPos.x, y: event.pageY - startPos.y}; //Pos to add to moved elements
-        const updatedElArray: Element[] = []; 
+        const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y }; //Pos to add to moved elements
+        const updatedElArray: Element[] = [];
         //Both these are arrays that hold the moved fields
         redTeamSelected.forEach((playerIndex) => {
-          const droppedEl = document.getElementById(`red${playerIndex+1}`)
-          const currentModelPos =  redTeam.players[playerIndex].position
+          const droppedEl = document.getElementById(`red${playerIndex + 1}`)
+          const currentModelPos = redTeam.players[playerIndex].position
 
-          redTeam.players[playerIndex].position = {x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y}
-
-          const removedEl = fieldElement.removeChild(droppedEl)
-          removedEl.setAttribute('style',
-          `left: ${redTeam.players[playerIndex].position.x}px; top: ${redTeam.players[playerIndex].position.y}px`);
-          updatedElArray.push(removedEl)
-        
-        })  
-        blueTeamSelected.forEach(( playerIndex) => {
-           
-          const droppedEl = document.getElementById(`blue${playerIndex+1}`)
-          const currentModelPos =  blueTeam.players[playerIndex].position
-
-          blueTeam.players[playerIndex].position = {x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y}
+          redTeam.players[playerIndex].position = { x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y }
 
           const removedEl = fieldElement.removeChild(droppedEl)
           removedEl.setAttribute('style',
-          `left: ${blueTeam.players[playerIndex].position.x}px; top: ${blueTeam.players[playerIndex].position.y}px`);
+            `left: ${redTeam.players[playerIndex].position.x}px; top: ${redTeam.players[playerIndex].position.y}px`);
           updatedElArray.push(removedEl)
-          
-          })
-          console.log(updatedElArray)
-          fieldElement.append(...updatedElArray);
+
+        })
+        blueTeamSelected.forEach((playerIndex) => {
+
+          const droppedEl = document.getElementById(`blue${playerIndex + 1}`)
+          const currentModelPos = blueTeam.players[playerIndex].position
+
+          blueTeam.players[playerIndex].position = { x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y }
+
+          const removedEl = fieldElement.removeChild(droppedEl)
+          removedEl.setAttribute('style',
+            `left: ${blueTeam.players[playerIndex].position.x}px; top: ${blueTeam.players[playerIndex].position.y}px`);
+          updatedElArray.push(removedEl)
+
+        })
+        console.log(updatedElArray)
+        fieldElement.append(...updatedElArray);
 
       }
-      else{ // single drag 
+      else { // single drag 
         const newX = event.pageX - rect.left
         const newY = event.pageY - rect.top
-  
+
         if (dragged.dataset.team === 'red') {
           redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
         }
         else { //dragged is blue team
-          redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
+          blueTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
         }
-  
+
         dragged.setAttribute('style',
           `left: ${newX}px; top: ${newY}px`)
       }
-      }
-      
+    }
+
   }
   // prevent default action (open as link for some elements)
 });
@@ -263,6 +265,9 @@ const blueTeam = new BlueTeam(fieldElement)
 ///inserting initial players 
 const fragment = document.createDocumentFragment();
 
+let previewEl: HTMLElement = document.createElement('div'); 
+
+
 //Dragging handler that changes the value of dragged on dragstart
 const dragStartHandler = (event: DragEvent) => {
   if (event.target instanceof HTMLElement) {
@@ -270,12 +275,13 @@ const dragStartHandler = (event: DragEvent) => {
   }
 
   if (dragged.classList.contains("selected")) {
+    
+    event.dataTransfer?.setDragImage(previewEl, 0, 0)
+
     //If selected need to get array of selected els and pass that as dataTransfer
     const redTeamSelected = JSON.stringify(redTeam.getSelected())
     const blueTeamSelected = JSON.stringify(blueTeam.getSelected());
-    const rect = dragged.getBoundingClientRect(); 
-
-    console.log(redTeamSelected, blueTeamSelected)
+    const rect = dragged.getBoundingClientRect();
 
     event.dataTransfer?.setData('multiple_selected', "true");
 
@@ -422,9 +428,9 @@ fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
     blueTeam.unselectAll();
     for (let i = 0; i < 11; i++) {
       const redPlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#red${i + 1}`)!;
-      redPlayerEl===null? null: redPlayerEl.classList.remove("selected");
+      redPlayerEl === null ? null : redPlayerEl.classList.remove("selected");
       const bluePlayerEl: HTMLElement = document.querySelector<HTMLElement>(`#blue${i + 1}`)!;
-      bluePlayerEl === null? null: bluePlayerEl.classList.remove("selected");
+      bluePlayerEl === null ? null : bluePlayerEl.classList.remove("selected");
     }
 
     //Set positions
@@ -436,13 +442,15 @@ fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
 
     fieldElement.addEventListener('mousemove', handleMouseMove)
   }
- 
+
 })
 
 fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
   selection.nullPos()
   fieldElement.removeEventListener('mousemove', handleMouseMove)
   selectElement.setAttribute('style', 'display: hidden ');
+  //Set canvas preview; 
+  
 })
 
 
