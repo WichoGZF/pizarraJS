@@ -460,6 +460,16 @@ fieldElement.addEventListener('mouseup', (e: MouseEvent) => {
     onclone: (clonedDoc) => {
       const clonedField = clonedDoc.getElementById('field')
       clonedField!.style.backgroundImage = 'none'
+ 
+      for (const child of Array.from(clonedField!.children)) {
+        if(child.classList.contains('selected')){
+          continue; 
+        }
+        else{
+          child.style.visibility = 'hidden' 
+        }
+
+      }
 
     }, 
 
