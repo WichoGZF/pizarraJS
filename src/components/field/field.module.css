@@ -108,6 +108,13 @@ button {
     cursor: pointer;
 }
 
+.capture{ 
+    background-image: url('../../assets/capture.svg'); 
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+}
+
 button:hover {
     background-color: var(--md-ref-palette-secondary90);
 }
