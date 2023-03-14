@@ -25,8 +25,8 @@
 }
 
 
-input[type=checkbox] {
-    display: none;
+.pencilLabel:checked {
+    background-color: aliceblue;
 }
 
 .pencilLabel {
@@ -38,14 +38,10 @@ input[type=checkbox] {
     border: 2px solid var(--md-sys-color-outline);
 }
 
-input[type=checkbox]:checked+label {
-    background-color: var(--md-ref-palette-primary80);
-}
-
 .pencilLabel:hover {
-
     background-color: var(--md-ref-palette-primary90);
 }
+
 
 .eraserLabel {
     cursor: pointer;
@@ -108,8 +104,8 @@ button {
     cursor: pointer;
 }
 
-.capture{ 
-    background-image: url('../../assets/capture.svg'); 
+.capture {
+    background-image: url('../../assets/capture.svg');
     background-repeat: no-repeat;
     background-position: center;
     background-color: transparent;
@@ -138,4 +134,45 @@ button:active {
     border: 1px dashed var(--md-sys-color-outline);
     position: absolute;
 
+}
+
+
+.checkbox {
+    appearance: none;
+    width: 50px;
+    height: 50px;
+
+    border: 2px solid var(--md-sys-color-outline);
+
+}
+
+.checkbox:hover{
+    background-color: var(--md-ref-palette-primary90);
+}
+
+.checkbox:checked{ 
+    background-color: var(--md-ref-palette-primary80);
+}
+
+.eraser{
+    cursor: pointer;
+    background-image: url('../src/assets/erase.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+
+}
+
+.pencil{
+    cursor: pointer;
+    background-image: url('../src/assets/pencil.svg');
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.red{ 
+    background-color: var(--md-custom-color-red);
+}
+
+.blue{ 
+    background-color: var(--md-custom-color-blue);
 }
