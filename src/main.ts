@@ -192,6 +192,8 @@ class BlueTeam implements Team {
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
 
+
+document.querySelector<HTMLElement>('#capture')!.onclick= handleCaptureField;
 document.querySelector<HTMLElement>('#reset-red')!.onclick = handleResetRedTeam;
 document.querySelector<HTMLElement>('#hide-red')!.onclick = handleHideRedTeam;
 document.querySelector<HTMLElement>('#reset-blue')!.onclick = handleResetBlueTeam;
@@ -487,6 +489,15 @@ fieldElement.addEventListener('mouseover', (e: MouseEvent) => {
 fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
   mouseInField = false;
 })
+
+async function handleCaptureField(){ 
+  const link = document.createElement('a');
+  link.download = 'download.png';
+  const canvasField = await html2canvas(fieldElement)
+  link.href = await canvasField.toDataURL('image/png');
+  link.click();
+  link.delete;
+}
 
 function updateDragPreview() {
   html2canvas(fieldElement, {
