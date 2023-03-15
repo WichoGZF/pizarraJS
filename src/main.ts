@@ -192,8 +192,115 @@ class BlueTeam implements Team {
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
 
+const drawCheckboxEl: HTMLElement = document.querySelector<HTMLElement>('#pencil')!;
+const eraseCheckboxEl: HTMLElement = document.querySelector<HTMLElement>('#eraser')!;
 
-document.querySelector<HTMLElement>('#capture')!.onclick= handleCaptureField;
+const drawElement: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('#drawCanvas')!;
+const canvasCtx = drawElement.getContext('2d')!;
+
+canvasCtx.canvas.width = fieldElRect.width;
+canvasCtx.canvas.height = fieldElRect.height;
+
+class DrawModel {
+  drawing: boolean;
+  erasing: boolean;
+  lastPos?: Position;
+  color: string;
+
+  constructor() {
+    this.drawing = false;
+    this.lastPos = { x: 0, y: 0 };
+    this.color = '#c0392b'
+    this.erasing = false;
+  }
+
+  setDrawing() {
+    this.drawing = true;
+  }
+  setNotDrawing() {
+    this.drawing = false;
+  }
+  setErasing() {
+    this.erasing = true;
+  }
+  setNotErasing() {
+    this.erasing = false;
+  }
+  setLastPos(newLastPos: Position) {
+    this.lastPos = newLastPos
+  }
+}
+
+const drawCanvas = new DrawModel();
+
+
+// new position from mouse event
+function setPosition(e: MouseEvent) {
+  drawCanvas.setLastPos({ x: e.clientX - fieldElRect.left, y: e.clientY - fieldElRect.top });
+}
+
+// resize canvas
+function resize() {
+  canvasCtx.canvas.width = fieldElRect.width;
+  canvasCtx.canvas.height = fieldElRect.height;
+}
+
+function draw(e: MouseEvent) {
+  // mouse left button must be pressed
+  if (e.buttons !== 1) return;
+
+  canvasCtx.beginPath(); // begin
+  if (drawCanvas.drawing) {
+    canvasCtx.lineWidth = 5;
+    canvasCtx.lineCap = 'round';
+    canvasCtx.strokeStyle = '#c0392b';
+  }
+  else {
+    canvasCtx.globalCompositeOperation = 'destination-out';
+    canvasCtx.strokeStyle = 'rgba(0,0,0,1)';
+    canvasCtx.lineWidth = 40;
+  }
+
+  canvasCtx.moveTo(drawCanvas.lastPos.x, drawCanvas.lastPos.y); // from
+  setPosition(e);
+  canvasCtx.lineTo(drawCanvas.lastPos.x, drawCanvas.lastPos.y); // to
+  canvasCtx.stroke(); // draw it!
+}
+
+drawElement.addEventListener('mousemove', draw);
+drawElement.addEventListener('mousedown', setPosition);
+drawElement.addEventListener('mouseenter', setPosition);
+
+
+drawCheckboxEl!.onclick = () => {
+  if (drawCanvas.drawing) {
+    drawCanvas.setNotDrawing();
+  }
+  else {
+    drawCanvas.setDrawing();
+    drawCheckboxEl.checked = true
+    if (drawCanvas.erasing) {
+      drawCanvas.setNotErasing();
+      eraseCheckboxEl.checked = false;
+    }
+  }
+}
+
+eraseCheckboxEl.onclick = () => {
+  if (drawCanvas.erasing) {
+    drawCanvas.setNotErasing();
+  }
+  else {
+    drawCanvas.setErasing();
+    if (drawCanvas.drawing) {
+      drawCanvas.setNotDrawing();
+      drawCheckboxEl.checked = false;
+    }
+  }
+}
+
+
+document.querySelector<HTMLElement>('#capture')!.onclick = handleCaptureField;
 document.querySelector<HTMLElement>('#reset-red')!.onclick = handleResetRedTeam;
 document.querySelector<HTMLElement>('#hide-red')!.onclick = handleHideRedTeam;
 document.querySelector<HTMLElement>('#reset-blue')!.onclick = handleResetBlueTeam;
@@ -490,7 +597,7 @@ fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
   mouseInField = false;
 })
 
-async function handleCaptureField(){ 
+async function handleCaptureField() {
   const link = document.createElement('a');
   link.download = 'download.png';
   const canvasField = await html2canvas(fieldElement)
@@ -588,3 +695,4 @@ function handleHideBlueTeam() {
     })
   }
 }
+
