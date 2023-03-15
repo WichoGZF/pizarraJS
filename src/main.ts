@@ -1,6 +1,7 @@
 import './style.css'
 import { header } from './components/header/header'
 import { field } from './components/field/field'
+import { dialog } from './components/dialog/dialog'
 import Position from '@customTypes/Position'
 import Player from '../src/types/Player'
 import createPlayerEl from './components/field/player/createPlayerEl'
@@ -10,6 +11,7 @@ import html2canvas from 'html2canvas'
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   ${header}  
   ${field}
+  ${dialog}
 `
 
 //CLEAN: Make Team class, extend other classes to avoid redefining methods
@@ -187,13 +189,20 @@ class BlueTeam implements Team {
   }
 }
 
+const faqQuestionMarkEl: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#faq-button')!;
+var faqDialogOpen: boolean; 
+
+
 
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
 
-const drawCheckboxEl: HTMLElement = document.querySelector<HTMLElement>('#pencil')!;
-const eraseCheckboxEl: HTMLElement = document.querySelector<HTMLElement>('#eraser')!;
+const drawCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#pencil')!;
+const eraseCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#eraser')!;
+const colorInputEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#color')!;
+
+colorInputEl.style.zIndex = '888888'
 
 const drawElement: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('#drawCanvas')!;
 const canvasCtx = drawElement.getContext('2d')!;
@@ -210,7 +219,7 @@ class DrawModel {
   constructor() {
     this.drawing = false;
     this.lastPos = { x: 0, y: 0 };
-    this.color = '#c0392b'
+    this.color = color
     this.erasing = false;
   }
 
@@ -251,9 +260,10 @@ function draw(e: MouseEvent) {
 
   canvasCtx.beginPath(); // begin
   if (drawCanvas.drawing) {
+    canvasCtx.globalCompositeOperation = 'source-over';
     canvasCtx.lineWidth = 5;
     canvasCtx.lineCap = 'round';
-    canvasCtx.strokeStyle = '#c0392b';
+    canvasCtx.strokeStyle = drawCanvas.color;
   }
   else {
     canvasCtx.globalCompositeOperation = 'destination-out';
@@ -266,6 +276,12 @@ function draw(e: MouseEvent) {
   canvasCtx.lineTo(drawCanvas.lastPos.x, drawCanvas.lastPos.y); // to
   canvasCtx.stroke(); // draw it!
 }
+
+colorInputEl.addEventListener("input", (e: Event) => {
+  drawCanvas.color = e.target.value; 
+})
+
+
 
 drawElement.addEventListener('mousemove', draw);
 drawElement.addEventListener('mousedown', setPosition);
@@ -315,7 +331,7 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
   event.preventDefault();
   if (event.target instanceof HTMLElement) {
     // move dragged element to the selected drop target
-    if (event.target.id === "field") {
+    if (event.target.id === "field" || event.target.id === "drawCanvas") {
       const rect = fieldElement.getBoundingClientRect();
       const multipleSelected = event.dataTransfer?.getData('multiple_selected') === 'true'
 
@@ -399,6 +415,10 @@ let previewEl: HTMLCanvasElement;
 
 //Dragging handler that changes the value of dragged on dragstart
 const dragStartHandler = (event: DragEvent) => {
+  if(drawCanvas.drawing || drawCanvas.erasing){
+    return;
+  }
+
   if (event.target instanceof HTMLElement) {
     dragged = event.target;
   }
@@ -555,6 +575,9 @@ const handleMouseMove = (e: MouseEvent) => {
 }
 
 fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
+  if(drawCanvas.drawing || drawCanvas.erasing){
+    return; 
+  }
   //Only do anything if inside the actual fieldEl 
   if (mouseInField) {
     //Unselect players
