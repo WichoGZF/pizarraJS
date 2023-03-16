@@ -22,9 +22,11 @@
     border-radius: .5rem;
     box-sizing: border-box;
     padding: 2rem;
+    overflow-y: scroll;
 
     display: flex;
     flex-direction: column;
+    gap: 1rem;
 }
 
 .headerContainer{ 
@@ -43,4 +45,28 @@
     background-image: url('../../assets/close.svg');
     background-position: center;
     background-color: transparent;
+}
+
+.dragGif{
+    content: url(../../assets/gif/drag.gif);
+    width: 250px;
+    height: 250px;
+}
+
+.drawGif{
+    content: url(../../assets/gif/draw.gif);
+    width: 250px;
+    height: 250px;
+}
+
+.captureGif{
+    content: url(../../assets/gif/snapshot.gif);
+    width: 250px;
+    height: 250px;
+}
+
+.hideResetGif{
+    content: url(../../assets/gif/reset.gif);
+    width: 500px;
+    height: 350px;
 }
