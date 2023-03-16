@@ -193,28 +193,26 @@ class BlueTeam implements Team {
   }
 }
 
+
+const faqQuestionMarkEl: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#faq-button')!;
+//The dialog el.
 const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!; 
 
 
-const faqQuestionMarkEl: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#faq-button')!;
-var faqDialogOpen: boolean = false; 
 
 console.log(faqQuestionMarkEl)
 
 faqQuestionMarkEl.addEventListener('click', () => {
-  faqDialogOpen = true; 
   dialogFaqEl.style.visibility = 'visible'
   console.log('Open dialog', dialogFaqEl)
 })
 
 dialogFaqEl.addEventListener('click', () => {
-  faqDialogOpen = false; 
   dialogFaqEl.style.visibility= 'hidden'
 })
 
 const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!; 
 dialogCloseButton.addEventListener('click', () => {
-  faqDialogOpen = false; 
   dialogFaqEl.style.visibility= 'hidden'
 })
 
