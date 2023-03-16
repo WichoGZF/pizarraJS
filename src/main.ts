@@ -31,7 +31,7 @@ interface Team {
   select(index: number): void;
   unselect(index: number): void;
 }
-
+//Red team's player data
 class RedTeam implements Team {
   players: Player[] = [];
   show: boolean;
@@ -112,7 +112,7 @@ class RedTeam implements Team {
     }
   }
 }
-
+// == for blue
 class BlueTeam implements Team {
   players: Player[] = [];
   show: boolean;
@@ -193,42 +193,43 @@ class BlueTeam implements Team {
   }
 }
 
-
+//The header's question mark button el (that opens dialog)
 const faqQuestionMarkEl: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#faq-button')!;
-//The dialog el.
-const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!; 
-
-
-
-console.log(faqQuestionMarkEl)
 
 faqQuestionMarkEl.addEventListener('click', () => {
   dialogFaqEl.style.visibility = 'visible'
   console.log('Open dialog', dialogFaqEl)
 })
 
+//The dialog el.
+const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!; 
+
 dialogFaqEl.addEventListener('click', () => {
   dialogFaqEl.style.visibility= 'hidden'
 })
 
+//Dialog's close button
 const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!; 
 dialogCloseButton.addEventListener('click', () => {
   dialogFaqEl.style.visibility= 'hidden'
 })
 
-const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
-const fieldElRect = fieldElement.getBoundingClientRect();
-
+//Sidebar inputs.
 const drawCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#pencil')!;
 const eraseCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#eraser')!;
 const colorInputEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#color')!;
 
+//Field (dnd/drawing) element
+const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
+const fieldElRect = fieldElement.getBoundingClientRect();
+
+//Canvas element for drawing on field
 const drawElement: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('#drawCanvas')!;
 const canvasCtx = drawElement.getContext('2d')!;
-
 canvasCtx.canvas.width = fieldElRect.width;
 canvasCtx.canvas.height = fieldElRect.height;
 
+//Data for draw canvas
 class DrawModel {
   drawing: boolean;
   erasing: boolean;
@@ -262,17 +263,18 @@ class DrawModel {
 const drawCanvas = new DrawModel();
 
 
-// new position from mouse event
+// Sets new last registered position on canvas object
 function setPosition(e: MouseEvent) {
   drawCanvas.setLastPos({ x: e.clientX - fieldElRect.left, y: e.clientY - fieldElRect.top });
 }
 
-// resize canvas
+//  Used when the window's resized.
 function resize() {
   canvasCtx.canvas.width = fieldElRect.width;
   canvasCtx.canvas.height = fieldElRect.height;
 }
 
+// Start drawing based on draw object data
 function draw(e: MouseEvent) {
   // mouse left button must be pressed
   if (e.buttons !== 1) return;
@@ -299,8 +301,6 @@ function draw(e: MouseEvent) {
 colorInputEl.addEventListener("input", (e: Event) => {
   drawCanvas.color = e.target.value; 
 })
-
-
 
 drawElement.addEventListener('mousemove', draw);
 drawElement.addEventListener('mousedown', setPosition);
@@ -520,7 +520,7 @@ class Selection {
 
 const selection: Selection = new Selection();
 const selectElement: HTMLElement = document.querySelector<HTMLElement>('#select')!;
-//
+//For establishing when the moouse is inside the mouse element
 let mouseInField: boolean = false;
 
 //Event handlers for selection and event listeners.
