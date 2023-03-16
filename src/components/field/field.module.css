@@ -22,6 +22,10 @@
 
     background-color: var(--md-ref-palette-primary98);
 
+    box-sizing: border-box;
+    padding-top: .5rem;
+    padding-bottom: .5rem;
+
 }
 
 

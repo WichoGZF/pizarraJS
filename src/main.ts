@@ -12,6 +12,10 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   ${header}  
   ${field}
   ${dialog}
+<footer> 
+  <p>PizarraJS by Luis Gustavo - 2023</p>
+  <p>Made with TS + Vite</p>
+</footer>
 `
 
 //CLEAN: Make Team class, extend other classes to avoid redefining methods
@@ -203,7 +207,10 @@ faqQuestionMarkEl.addEventListener('click', () => {
   console.log('Open dialog', dialogFaqEl)
 })
 
-
+dialogFaqEl.addEventListener('click', () => {
+  faqDialogOpen = false; 
+  dialogFaqEl.style.visibility= 'hidden'
+})
 
 const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!; 
 dialogCloseButton.addEventListener('click', () => {
