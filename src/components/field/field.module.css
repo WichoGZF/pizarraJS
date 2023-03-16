@@ -122,7 +122,7 @@ button:active {
 .playField {
     flex: 1 1 auto;
     background-color: var(--md-ref-palette-primary99);
-    background-image: url('../../assets/campo.png');
+    background-image: url('../../assets/field.png');
     background-repeat: no-repeat;
     background-size: contain;
     background-position: center;
