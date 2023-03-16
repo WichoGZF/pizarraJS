@@ -189,11 +189,27 @@ class BlueTeam implements Team {
   }
 }
 
+const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!; 
+
+
 const faqQuestionMarkEl: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#faq-button')!;
-var faqDialogOpen: boolean; 
+var faqDialogOpen: boolean = false; 
+
+console.log(faqQuestionMarkEl)
+
+faqQuestionMarkEl.addEventListener('click', () => {
+  faqDialogOpen = true; 
+  dialogFaqEl.style.visibility = 'visible'
+  console.log('Open dialog', dialogFaqEl)
+})
 
 
 
+const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!; 
+dialogCloseButton.addEventListener('click', () => {
+  faqDialogOpen = false; 
+  dialogFaqEl.style.visibility= 'hidden'
+})
 
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
@@ -201,8 +217,6 @@ const fieldElRect = fieldElement.getBoundingClientRect();
 const drawCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#pencil')!;
 const eraseCheckboxEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#eraser')!;
 const colorInputEl: HTMLInputElement = document.querySelector<HTMLInputElement>('#color')!;
-
-colorInputEl.style.zIndex = '888888'
 
 const drawElement: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('#drawCanvas')!;
 const canvasCtx = drawElement.getContext('2d')!;

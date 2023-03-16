@@ -1,0 +1,46 @@
+.background{
+    width: 100vw; 
+    height: 100vh; 
+    background-color: rgba(0, 0 ,0, .3);
+    position: absolute;
+    z-index: 9999;
+
+    top: 0; 
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+
+    visibility: hidden;
+}
+
+.dialog{
+    width: 50%;
+    height: 80%; 
+    background-color: var(--md-sys-color-background);
+    border-radius: .5rem;
+    box-sizing: border-box;
+    padding: 2rem;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.headerContainer{ 
+    display:flex; 
+    justify-content: space-between;
+}
+
+
+.header{
+    margin: 0px;
+}
+
+.headerClose{
+    width: 30px; 
+    height: 30px;
+    background-image: url('../../assets/close.svg');
+    background-position: center;
+    background-color: transparent;
+}
