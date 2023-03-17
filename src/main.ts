@@ -239,7 +239,7 @@ class DrawModel {
   constructor() {
     this.drawing = false;
     this.lastPos = { x: 0, y: 0 };
-    this.color = color
+    this.color = '#000000'
     this.erasing = false;
   }
 
@@ -292,14 +292,15 @@ function draw(e: MouseEvent) {
     canvasCtx.lineWidth = 40;
   }
 
-  canvasCtx.moveTo(drawCanvas.lastPos.x, drawCanvas.lastPos.y); // from
+  canvasCtx.moveTo(drawCanvas.lastPos!.x, drawCanvas.lastPos!.y); // from
   setPosition(e);
-  canvasCtx.lineTo(drawCanvas.lastPos.x, drawCanvas.lastPos.y); // to
+  canvasCtx.lineTo(drawCanvas.lastPos!.x, drawCanvas.lastPos!.y); // to
   canvasCtx.stroke(); // draw it!
 }
 
 colorInputEl.addEventListener("input", (e: Event) => {
-  drawCanvas.color = e.target.value; 
+  const colorInput = e.target as HTMLInputElement; 
+  drawCanvas.color = colorInput.value; 
 })
 
 drawElement.addEventListener('mousemove', draw);
@@ -342,7 +343,7 @@ document.querySelector<HTMLElement>('#reset-blue')!.onclick = handleResetBlueTea
 document.querySelector<HTMLElement>('#hide-blue')!.onclick = handleHideBlueTeam;
 
 //For keeping the ref of the dragged el
-let dragged: HTMLElement = null;
+let dragged: HTMLElement | null = null;
 
 
 
@@ -361,26 +362,26 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
         const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y }; //Pos to add to moved elements
         const updatedElArray: Element[] = [];
         //Both these are arrays that hold the moved fields
-        redTeamSelected.forEach((playerIndex) => {
-          const droppedEl = document.getElementById(`red${playerIndex + 1}`)
+        redTeamSelected.forEach((playerIndex: number) => {
+          const droppedEl = document.getElementById(`red${playerIndex + 1}`) as HTMLElement
           const currentModelPos = redTeam.players[playerIndex].position
 
           redTeam.players[playerIndex].position = { x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y }
 
-          const removedEl = fieldElement.removeChild(droppedEl)
+          const removedEl = fieldElement.removeChild(droppedEl) as HTMLElement; 
           removedEl.setAttribute('style',
             `left: ${redTeam.players[playerIndex].position.x}px; top: ${redTeam.players[playerIndex].position.y}px`);
           updatedElArray.push(removedEl)
 
         })
-        blueTeamSelected.forEach((playerIndex) => {
+        blueTeamSelected.forEach((playerIndex: number) => {
 
-          const droppedEl = document.getElementById(`blue${playerIndex + 1}`)
+          const droppedEl = document.getElementById(`blue${playerIndex + 1}`) as HTMLElement
           const currentModelPos = blueTeam.players[playerIndex].position
 
           blueTeam.players[playerIndex].position = { x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y }
 
-          const removedEl = fieldElement.removeChild(droppedEl)
+          const removedEl = fieldElement.removeChild(droppedEl) as HTMLElement;
           removedEl.setAttribute('style',
             `left: ${blueTeam.players[playerIndex].position.x}px; top: ${blueTeam.players[playerIndex].position.y}px`);
           updatedElArray.push(removedEl)
@@ -391,18 +392,18 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
 
       }
       else { // single drag 
-        const clickOffset: Position = JSON.parse(event.dataTransfer?.getData('click_offset'))
+        const clickOffset: Position = JSON.parse(event.dataTransfer!.getData('click_offset'))
         const newX = (event.pageX - clickOffset.x) - fieldElRect.x
         const newY = (event.pageY - clickOffset.y) - fieldElRect.y
 
-        if (dragged.dataset.team === 'red') {
-          redTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
+        if (dragged!.dataset.team === 'red') {
+          redTeam.players[parseInt(dragged!.dataset.index!)].setPos({ x: newX, y: newY })
         }
         else { //dragged is blue team
-          blueTeam.players[parseInt(dragged.dataset.index!)].setPos({ x: newX, y: newY })
+          blueTeam.players[parseInt(dragged!.dataset.index!)].setPos({ x: newX, y: newY })
         }
 
-        dragged.setAttribute('style',
+        dragged!.setAttribute('style',
           `left: ${newX}px; top: ${newY}px`)
       }
       updateDragPreview();
@@ -439,11 +440,13 @@ const dragStartHandler = (event: DragEvent) => {
   }
 
   if (event.target instanceof HTMLElement) {
-    dragged = event.target;
+    dragged = event.target!;
   }
-  const rect = dragged.getBoundingClientRect();
+  
+  
+  const rect = dragged!.getBoundingClientRect();
 
-  if (dragged.classList.contains("selected")) {
+  if (dragged!.classList.contains("selected")) {
 
     event.dataTransfer?.setDragImage(previewEl, event.clientX - fieldElRect.left, event.clientY - fieldElRect.top)
 
@@ -642,10 +645,17 @@ fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
 async function handleCaptureField() {
   const link = document.createElement('a');
   link.download = 'download.png';
-  const canvasField = await html2canvas(fieldElement)
+  const canvasField = await html2canvas(fieldElement, { 
+    onclone: (clonedDoc) => {
+      Array.from(clonedDoc.getElementsByClassName('playerNumb')).forEach( (el: Element) => {
+        const element = el as HTMLElement
+        element.style.marginTop = '40px'; 
+      })
+    }
+  })
   link.href = await canvasField.toDataURL('image/png');
   link.click();
-  link.delete;
+  link.remove();
 }
 
 function updateDragPreview() {
@@ -655,11 +665,12 @@ function updateDragPreview() {
       clonedField!.style.backgroundImage = 'none'
 
       for (const child of Array.from(clonedField!.children)) {
-        if (child.classList.contains('selected')) {
+        const childEl = child as HTMLElement
+        if (childEl.classList.contains('selected')) {
           continue;
         }
         else {
-          child.style.visibility = 'hidden'
+          childEl.style.visibility = 'hidden'
         }
 
       }
@@ -677,8 +688,9 @@ function updateDragPreview() {
 function handleResetRedTeam() {
   redTeam.resetPos();
   Array.from(fieldElement.children).forEach((el, index) => {
-    if (el.dataset.team === 'red') {
-      const playerIndex = parseInt(el.dataset.index)
+    const element = el as HTMLElement
+    if (element.dataset.team === 'red') {
+      const playerIndex = parseInt(element.dataset.index!)
       const initialPos = redTeam.initialPos[playerIndex];
       el.setAttribute('style', `left: ${initialPos.x}px; top: ${initialPos.y}px`)
     }
@@ -688,8 +700,9 @@ function handleResetRedTeam() {
 function handleResetBlueTeam() {
   blueTeam.resetPos();
   Array.from(fieldElement.children).forEach((el, index) => {
-    if (el.dataset.team === 'blue') {
-      const playerIndex = parseInt(el.dataset.index)
+    const element = el as HTMLElement
+    if (element.dataset.team === 'blue') {
+      const playerIndex = parseInt(element.dataset.index!)
       const initialPos = blueTeam.initialPos[playerIndex];
       el.setAttribute('style', `left: ${initialPos.x}px; top: ${initialPos.y}px`)
     }
@@ -702,9 +715,10 @@ function handleHideRedTeam() {
     redTeam.hide();
 
     Array.from(fieldElement.children).forEach((el, index) => {
-      console.log(el.dataset.team)
-      if (el.dataset.team === 'red') {
-        el.style.visibility = 'hidden'
+      const element = el as HTMLElement
+      console.log(element.dataset.team)
+      if (element.dataset.team === 'red') {
+        element.style.visibility = 'hidden'
       }
     })
 
@@ -712,8 +726,9 @@ function handleHideRedTeam() {
   else {
     redTeam.setShow();
     Array.from(fieldElement.children).forEach((el, index) => {
-      if (el.dataset.team === 'red') {
-        el.style.visibility = 'visible'
+      const element = el as HTMLElement
+      if (element.dataset.team === 'red') {
+        element.style.visibility = 'visible'
       }
     })
   }
@@ -723,16 +738,18 @@ function handleHideBlueTeam() {
   if (blueTeam.show) {
     blueTeam.hide();
     Array.from(fieldElement.children).forEach((el, index) => {
-      if (el.dataset.team === 'blue') {
-        el.style.visibility = 'hidden'
+      const element = el as HTMLElement
+      if (element.dataset.team === 'blue') {
+        element.style.visibility = 'hidden'
       }
     })
   }
   else {
     blueTeam.setShow()
     Array.from(fieldElement.children).forEach((el, index) => {
-      if (el.dataset.team === 'blue') {
-        el.style.visibility = 'visible'
+      const element = el as HTMLElement
+      if (element.dataset.team === 'blue') {
+        element.style.visibility = 'visible'
       }
     })
   }

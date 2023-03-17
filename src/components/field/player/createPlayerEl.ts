@@ -6,7 +6,7 @@ export default function createPlayerEl(number: number, team: 'red' | 'blue', pos
     const playerEl: HTMLElement = document.createElement('div');
     playerEl.classList.add(styles.player);
     playerEl.innerHTML = `
-        <p class=${styles.number}> 
+        <p class='${styles.number} playerNumb'> 
             ${number}
         </p>`
 

@@ -5,30 +5,27 @@
   font-weight: 400;
 
   background-color: var(--md-sys-color-background);  
+
 }
 
 
 body {
   margin: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 100%;
+  height: 100%;
+  align-items: flex-start; 
+  justify-content: center ;
+
 }
 
-#root {
-  min-height: 100vh;
-  width: inherit;
-
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
 
 #app{
   padding: 2rem;
   padding-bottom: 0rem;
   margin: 0;
-  box-sizing: border-box  ;
+  box-sizing: border-box;
 
 
   max-width: 1280px;
@@ -37,6 +34,12 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 2rem;
+}
+
+@media (min-width: 1920px) { 
+   #app{ 
+    max-width: 1920px;
+   }
 }
 
 .selected{

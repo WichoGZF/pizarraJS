@@ -11,18 +11,21 @@
     height: 40px;
     border-radius: 50%;
     
-    display: flex; 
-    justify-content: center;
-    align-items: center;
+    
 
     position: absolute; 
     z-index: 2;
 
     box-sizing: border-box;
-    
+
+    display: flex; 
+    justify-content: center;
+    align-items: center;
 }
 
 .number{ 
     color: white;
     user-select: none; /* Standard */
+    position: relative;
+    margin: 0px;
 }
