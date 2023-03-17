@@ -1,14 +1,18 @@
 {
   "name": "pizarrajs",
+  "homepage": "https://wichogzf.github.io/pizarraJS/",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "devDependencies": {
+    "gh-pages": "^5.0.0",
     "typescript": "^4.9.3",
     "vite": "^4.1.0"
   },
