@@ -265,7 +265,7 @@ const drawCanvas = new DrawModel();
 
 // Sets new last registered position on canvas object
 function setPosition(e: MouseEvent) {
-  drawCanvas.setLastPos({ x: e.clientX - fieldElRect.left, y: e.clientY - fieldElRect.top });
+  drawCanvas.setLastPos({ x: e.pageX - fieldElRect.left, y: e.pageY - fieldElRect.top });
 }
 
 //  Used when the window's resized.
@@ -359,8 +359,9 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
         const redTeamSelected = JSON.parse(event.dataTransfer.getData('red_team_selected'));
         const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected'));
         const startPos: Position = JSON.parse(event.dataTransfer?.getData('start_pos'))
-        const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y }; //Pos to add to moved elements
-        const updatedElArray: Element[] = [];
+        const startOffset: Position = JSON.parse(event.dataTransfer.getData('start_offset'))
+        const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y}; //Total ammount increased in positioning
+        const updatedElArray: Element[] = []; debugger
         //Both these are arrays that hold the moved fields
         redTeamSelected.forEach((playerIndex: number) => {
           const droppedEl = document.getElementById(`red${playerIndex + 1}`) as HTMLElement
@@ -395,7 +396,7 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
         const clickOffset: Position = JSON.parse(event.dataTransfer!.getData('click_offset'))
         const newX = (event.pageX - clickOffset.x) - fieldElRect.x
         const newY = (event.pageY - clickOffset.y) - fieldElRect.y
-
+        
         if (dragged!.dataset.team === 'red') {
           redTeam.players[parseInt(dragged!.dataset.index!)].setPos({ x: newX, y: newY })
         }
@@ -448,7 +449,7 @@ const dragStartHandler = (event: DragEvent) => {
 
   if (dragged!.classList.contains("selected")) {
 
-    event.dataTransfer?.setDragImage(previewEl, event.clientX - fieldElRect.left, event.clientY - fieldElRect.top)
+    event.dataTransfer?.setDragImage(previewEl, event.pageX - fieldElRect.left, event.pageY - fieldElRect.top)
 
     //If selected need to get array of selected els and pass that as dataTransfer
     const redTeamSelected = JSON.stringify(redTeam.getSelected())
@@ -459,21 +460,14 @@ const dragStartHandler = (event: DragEvent) => {
     event.dataTransfer?.setData('red_team_selected', redTeamSelected)
 
     event.dataTransfer?.setData('blue_team_selected', blueTeamSelected)
-
     //start pos is already passed with offset (position of click relative to player el) so there's no need to do further calculations in drop Handler
-    const xOffset = event.pageX - rect.x;
-    const yOffset = event.pageY - rect.y;
-    console.log(xOffset, yOffset)
-    event.dataTransfer?.setData('start_pos', `{"x": ${rect.x + xOffset}, "y": ${rect.y + yOffset}}`)
-
-    console.log(event.dataTransfer?.getData('start_pos'))
+    event.dataTransfer?.setData('start_pos', `{"x": ${event.pageX}, "y": ${event.pageY}}`)
+    event.dataTransfer?.setData('start_offset', `{"x": ${event.offsetX}, "y": ${event.offsetY}}`);
+  
   }
   else {
     event.dataTransfer?.setData('multiple_selected', "false");
-    const xOffset = event.pageX - rect.x;
-    const yOffset = event.pageY - rect.y;
-    console.log(xOffset, yOffset)
-    event.dataTransfer?.setData('click_offset', `{"x": ${xOffset}, "y": ${yOffset}}`)
+    event.dataTransfer?.setData('click_offset', `{"x": ${event.offsetX}, "y": ${event.offsetY}}`)
   }
 }
 
@@ -529,7 +523,7 @@ let mouseInField: boolean = false;
 //Event handlers for selection and event listeners.
 const handleMouseMove = (e: MouseEvent) => {
   const rect = fieldElement.getBoundingClientRect();
-  const newPos: Position = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  const newPos: Position = { x: e.pageX - fieldElRect.x, y: e.pageY - fieldElRect.y };
   selection.updateEndingPos(newPos);
   const endingPos = selection.endingPos!;
   const startingPos = selection.initialPos!;
@@ -556,7 +550,7 @@ const handleMouseMove = (e: MouseEvent) => {
     selectElement.setAttribute('style',
       `left: ${startingPos.x}px; top: ${startingPos.y}px; width:${endingPos.x - startingPos.x}px; height: ${endingPos.y - startingPos.y}px`)
     selection.setQuadrant(4)
-  }
+  } debugger
   //Once quadrant is set we have to update the selected players. 
   for (let i = 0; i < 11; i++) {
     //red team
@@ -667,6 +661,7 @@ function updateDragPreview() {
       for (const child of Array.from(clonedField!.children)) {
         const childEl = child as HTMLElement
         if (childEl.classList.contains('selected')) {
+          childEl.style.paddingTop = '2.5rem'
           continue;
         }
         else {
