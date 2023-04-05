@@ -473,17 +473,18 @@ const dragStartHandler = (event: DragEvent) => {
 
 
 redTeam.players.forEach((player: Player, index: number) => {
-  fragment.appendChild(createPlayerEl(player.number, 'red', player.position, dragStartHandler))
+  fragment.appendChild(createPlayerEl(player.number, 'red', player.position))
 
 
 })
 
 blueTeam.players.forEach((player: Player, index: number) => {
-  fragment.appendChild(createPlayerEl(player.number, 'blue', player.position, dragStartHandler))
+  fragment.appendChild(createPlayerEl(player.number, 'blue', player.position))
 })
 
 fieldElement.append(fragment)
 
+fieldElement.addEventListener('dragstart', dragStartHandler)
 
 class Selection {
   initialPos: Position | null;

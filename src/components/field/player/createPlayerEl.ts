@@ -2,7 +2,7 @@ import styles from './player.module.css'
 import Position from '@customTypes/Position';
 
 //Creates player element and returns element depending on the team. 
-export default function createPlayerEl(number: number, team: 'red' | 'blue', position: Position, dragHandler: any): HTMLElement { 
+export default function createPlayerEl(number: number, team: 'red' | 'blue', position: Position): HTMLElement { 
     const playerEl: HTMLElement = document.createElement('div');
     playerEl.classList.add(styles.player);
     playerEl.innerHTML = `
@@ -29,7 +29,6 @@ export default function createPlayerEl(number: number, team: 'red' | 'blue', pos
     /*Drag start needs two use cases, when there's a selection and when there's no selected el. (Selected el existing moves all other selected)
     No selected el just moves the single element and removes all selected els
     */
-    playerEl.addEventListener('dragstart', dragHandler);
     playerEl.addEventListener('mouseover', (e: MouseEvent) => {e.stopPropagation()})
     playerEl.addEventListener('mouseout', (e: MouseEvent) => {e.stopPropagation()})
 
