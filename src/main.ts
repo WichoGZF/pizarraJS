@@ -202,16 +202,16 @@ faqQuestionMarkEl.addEventListener('click', () => {
 })
 
 //The dialog el.
-const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!; 
+const dialogFaqEl: HTMLElement = document.querySelector<HTMLElement>('#dialog-faq')!;
 
 dialogFaqEl.addEventListener('click', () => {
-  dialogFaqEl.style.visibility= 'hidden'
+  dialogFaqEl.style.visibility = 'hidden'
 })
 
 //Dialog's close button
-const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!; 
+const dialogCloseButton: HTMLButtonElement = document.querySelector<HTMLButtonElement>('#dialog-close')!;
 dialogCloseButton.addEventListener('click', () => {
-  dialogFaqEl.style.visibility= 'hidden'
+  dialogFaqEl.style.visibility = 'hidden'
 })
 
 //Sidebar inputs.
@@ -222,6 +222,14 @@ const colorInputEl: HTMLInputElement = document.querySelector<HTMLInputElement>(
 //Field (dnd/drawing) element
 const fieldElement: HTMLElement = document.querySelector<HTMLElement>('#field')!;
 const fieldElRect = fieldElement.getBoundingClientRect();
+
+//Ball 
+const ballElement: HTMLElement = document.querySelector<HTMLElement>('#ball')!;
+const ballElRect = ballElement.getBoundingClientRect();
+let ballPos: Position = { x: ballElRect.left, y: ballElRect.y };
+
+ballElement.addEventListener('mouseover', (e: MouseEvent) => { e.stopPropagation() })
+ballElement.addEventListener('mouseout', (e: MouseEvent) => { e.stopPropagation() })
 
 //Canvas element for drawing on field
 const drawElement: HTMLCanvasElement = document.querySelector<HTMLCanvasElement>('#drawCanvas')!;
@@ -299,8 +307,8 @@ function draw(e: MouseEvent) {
 }
 
 colorInputEl.addEventListener("input", (e: Event) => {
-  const colorInput = e.target as HTMLInputElement; 
-  drawCanvas.color = colorInput.value; 
+  const colorInput = e.target as HTMLInputElement;
+  drawCanvas.color = colorInput.value;
 })
 
 drawElement.addEventListener('mousemove', draw);
@@ -352,15 +360,24 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
   if (event.target instanceof HTMLElement) {
     // move dragged element to the selected drop target
     if (event.target.id === "field" || event.target.id === "drawCanvas") {
-      const rect = fieldElement.getBoundingClientRect();
+
+      //If event is balldrop
+      if (event.dataTransfer?.getData('ball') === 'true') {
+        const startOffset: Position = JSON.parse(event.dataTransfer.getData('start_offset'))
+        const newX = (event.pageX - startOffset.x) - fieldElRect.x
+        const newY = (event.pageY - startOffset.y) - fieldElRect.y
+        
+        ballElement.setAttribute('style', `left: ${newX}px; top: ${newY}px`)
+        return
+      }
+
       const multipleSelected = event.dataTransfer?.getData('multiple_selected') === 'true'
 
       if (multipleSelected) {
         const redTeamSelected = JSON.parse(event.dataTransfer.getData('red_team_selected'));
         const blueTeamSelected = JSON.parse(event.dataTransfer?.getData('blue_team_selected'));
         const startPos: Position = JSON.parse(event.dataTransfer?.getData('start_pos'))
-        const startOffset: Position = JSON.parse(event.dataTransfer.getData('start_offset'))
-        const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y}; //Total ammount increased in positioning
+        const increasedPos: Position = { x: event.pageX - startPos.x, y: event.pageY - startPos.y }; //Total ammount increased in positioning
         const updatedElArray: Element[] = []; debugger
         //Both these are arrays that hold the moved fields
         redTeamSelected.forEach((playerIndex: number) => {
@@ -369,7 +386,7 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
 
           redTeam.players[playerIndex].position = { x: currentModelPos.x + increasedPos.x, y: currentModelPos.y + increasedPos.y }
 
-          const removedEl = fieldElement.removeChild(droppedEl) as HTMLElement; 
+          const removedEl = fieldElement.removeChild(droppedEl) as HTMLElement;
           removedEl.setAttribute('style',
             `left: ${redTeam.players[playerIndex].position.x}px; top: ${redTeam.players[playerIndex].position.y}px`);
           updatedElArray.push(removedEl)
@@ -393,10 +410,10 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
 
       }
       else { // single drag 
-        const clickOffset: Position = JSON.parse(event.dataTransfer!.getData('click_offset'))
-        const newX = (event.pageX - clickOffset.x) - fieldElRect.x
-        const newY = (event.pageY - clickOffset.y) - fieldElRect.y
-        
+        const startOffset: Position = JSON.parse(event.dataTransfer!.getData('start_offset'))
+        const newX = (event.pageX - startOffset.x) - fieldElRect.x
+        const newY = (event.pageY - startOffset.y) - fieldElRect.y
+
         if (dragged!.dataset.team === 'red') {
           redTeam.players[parseInt(dragged!.dataset.index!)].setPos({ x: newX, y: newY })
         }
@@ -409,6 +426,7 @@ fieldElement.addEventListener("drop", (event: DragEvent) => {
       }
       updateDragPreview();
     }
+
 
   }
   // prevent default action (open as link for some elements)
@@ -436,16 +454,13 @@ let previewEl: HTMLCanvasElement;
 
 //Dragging handler that changes the value of dragged on dragstart
 const dragStartHandler = (event: DragEvent) => {
-  if(drawCanvas.drawing || drawCanvas.erasing){
+  if (drawCanvas.drawing || drawCanvas.erasing) {
     return;
   }
 
   if (event.target instanceof HTMLElement) {
     dragged = event.target!;
   }
-  
-  
-  const rect = dragged!.getBoundingClientRect();
 
   if (dragged!.classList.contains("selected")) {
 
@@ -462,13 +477,16 @@ const dragStartHandler = (event: DragEvent) => {
     event.dataTransfer?.setData('blue_team_selected', blueTeamSelected)
     //start pos is already passed with offset (position of click relative to player el) so there's no need to do further calculations in drop Handler
     event.dataTransfer?.setData('start_pos', `{"x": ${event.pageX}, "y": ${event.pageY}}`)
-    event.dataTransfer?.setData('start_offset', `{"x": ${event.offsetX}, "y": ${event.offsetY}}`);
-  
+  }
+  else if (dragged!.id === 'ball') {
+    event.dataTransfer?.setData('ball', "true");
   }
   else {
+
     event.dataTransfer?.setData('multiple_selected', "false");
-    event.dataTransfer?.setData('click_offset', `{"x": ${event.offsetX}, "y": ${event.offsetY}}`)
   }
+
+  event.dataTransfer?.setData('start_offset', `{"x": ${event.offsetX}, "y": ${event.offsetY}}`);
 }
 
 
@@ -523,7 +541,6 @@ let mouseInField: boolean = false;
 
 //Event handlers for selection and event listeners.
 const handleMouseMove = (e: MouseEvent) => {
-  const rect = fieldElement.getBoundingClientRect();
   const newPos: Position = { x: e.pageX - fieldElRect.x, y: e.pageY - fieldElRect.y };
   selection.updateEndingPos(newPos);
   const endingPos = selection.endingPos!;
@@ -551,7 +568,7 @@ const handleMouseMove = (e: MouseEvent) => {
     selectElement.setAttribute('style',
       `left: ${startingPos.x}px; top: ${startingPos.y}px; width:${endingPos.x - startingPos.x}px; height: ${endingPos.y - startingPos.y}px`)
     selection.setQuadrant(4)
-  } debugger
+  }
   //Once quadrant is set we have to update the selected players. 
   for (let i = 0; i < 11; i++) {
     //red team
@@ -592,8 +609,8 @@ const handleMouseMove = (e: MouseEvent) => {
 }
 
 fieldElement.addEventListener('mousedown', (e: MouseEvent) => {
-  if(drawCanvas.drawing || drawCanvas.erasing){
-    return; 
+  if (drawCanvas.drawing || drawCanvas.erasing) {
+    return;
   }
   //Only do anything if inside the actual fieldEl 
   if (mouseInField) {
@@ -640,11 +657,11 @@ fieldElement.addEventListener('mouseout', (e: MouseEvent) => {
 async function handleCaptureField() {
   const link = document.createElement('a');
   link.download = 'download.png';
-  const canvasField = await html2canvas(fieldElement, { 
+  const canvasField = await html2canvas(fieldElement, {
     onclone: (clonedDoc) => {
-      Array.from(clonedDoc.getElementsByClassName('playerNumb')).forEach( (el: Element) => {
+      Array.from(clonedDoc.getElementsByClassName('playerNumb')).forEach((el: Element) => {
         const element = el as HTMLElement
-        element.style.marginTop = '40px'; 
+        element.style.marginTop = '40px';
       })
     }
   })

@@ -18,6 +18,8 @@ export const field: string = `
             </div>
         </div>
         <div id="field" class=${styles.playField}>
+            <div id='ball' class=${styles.ball} draggable="true">
+            </div>
             <canvas id="drawCanvas"></canvas>
             <div id="select" class=${styles.selection}></div>
         </div>
